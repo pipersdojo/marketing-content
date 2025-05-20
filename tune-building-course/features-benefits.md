@@ -19,11 +19,11 @@
 - **A Strategy to Fix Tunes**: Apply the system to tunes you’ve already learned to repair weak sections, diagnose issues, and rebuild problem areas with clarity.  
 
 ### 3. List of Benefits
-- **Simple and repeatable.** - Master any tune with clarity and confidence, reducing frustration and uncertainty.  
-- **If you can dream it, you can learn it.** - Apply your skills to any tune immediately, opening up endless musical possibilities.  
-- **Learn any tune quickly and manageably.** - Save hours of practice with effective methods that ensure steady progress.  
-- **Don't just learn - master!** - Achieve true mastery as you build your skills piece by piece.  
-- **Real World Hands-on Tune Building Experience.** - Gain practical experience and confidence through structured learning.  
-- **It's anywhere you are.** - Enjoy flexible, 24/7 access to learning, fitting your practice into your lifestyle.  
-- **Memorize Tunes FAST.** - Use proven techniques to make memorization smooth and efficient.  
-- **Fix Existing Tunes on Auto-Pilot.** - Effortlessly diagnose and repair any tune issues, making your practice more productive.  
+- **Simple and repeatable.** - Master any tune with clarity, reducing confusion and building confidence in your playing.  
+- **If you can dream it, you can learn it.** - Use any tune immediately, opening endless possibilities for your musical journey.  
+- **Learn any tune quickly and manageably.** - Save hours in your practice routine by breaking down tunes into easy-to-learn segments.  
+- **Don't just learn - master!** - Achieve a deeper level of proficiency with a structured approach to mastering each piece.  
+- **Real World Hands-On Tune Building Experience.** - Gain practical experience from building real tunes, enhancing your skills effectively.  
+- **It's anywhere you are.** - Enjoy the freedom of learning from any location with online access, fitting your practice around your schedule.  
+- **Memorize Tunes FAST.** - Utilize proven techniques for rapid memorization, making your learning process efficient and effective.  
+- **Fix Existing Tunes on Auto-Pilot.** - Effortlessly diagnose and repair any issues with tunes you've already learned, enhancing your overall musicality.  
