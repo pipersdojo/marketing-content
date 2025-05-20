@@ -19,11 +19,11 @@
 - **A Strategy to Fix Tunes**: Apply the system to tunes you’ve already learned to repair weak sections, diagnose issues, and rebuild problem areas with clarity.  
 
 ### 3. List of Benefits
-- **Simple and repeatable.** - Master any tune with clarity, reducing confusion and building confidence in your playing.  
-- **If you can dream it, you can learn it.** - Use any tune immediately, opening endless possibilities for your musical journey.  
-- **Learn any tune quickly and manageably.** - Save hours in your practice routine by breaking down tunes into easy-to-learn segments.  
-- **Don't just learn - master!** - Achieve a deeper level of proficiency with a structured approach to mastering each piece.  
-- **Real World Hands-On Tune Building Experience.** - Gain practical experience from building real tunes, enhancing your skills effectively.  
-- **It's anywhere you are.** - Enjoy the freedom of learning from any location with online access, fitting your practice around your schedule.  
-- **Memorize Tunes FAST.** - Utilize proven techniques for rapid memorization, making your learning process efficient and effective.  
-- **Fix Existing Tunes on Auto-Pilot.** - Effortlessly diagnose and repair any issues with tunes you've already learned, enhancing your overall musicality.  
+- **Simple and repeatable.** - Master any tune with ease, reducing confusion and building confidence as you progress.  
+- **If you can dream it, you can learn it.** - Utilize this method with any tune you wish to learn, allowing for a diverse musical repertoire.  
+- **Learn any tune quickly and manageably.** - Save time by breaking down complex tunes into manageable segments, making learning efficient and less daunting.  
+- **Don't just learn - master!** - Enhance your skills and truly master each tune step-by-step, resulting in noticeable improvements in your playing.  
+- **Real World Hands-On Tune Building Experience.** - Gain practical experience by learning real classic tunes, building your confidence before playing independently.  
+- **It's anywhere you are.** - Access your learning materials anytime, anywhere, fitting your practice into your life seamlessly.  
+- **Memorize Tunes FAST.** - Employ proven strategies to speed up the memorization process, allowing you to play more tunes with confidence.  
+- **Fix Existing Tunes on Auto-Pilot.** - Effortlessly diagnose and improve any trouble spots in tunes you've learned, making your practice sessions more productive.  
