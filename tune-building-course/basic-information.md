@@ -11,18 +11,21 @@
 ### Access Information
 
 - **Sales Page URL**: [Visit Here](https://www.pipersdojo.university/tune-building-process)  
+- **Sales Page Edit URL**: [Edit Sales Page](https://app.kajabi.com/admin/landing_pages/2150113531)  
 - **Checkout Page URL**: [Proceed to Checkout](https://www.pipersdojo.university/offers/5jqkQM3m)  
+- **Checkout Page Edit URL**: [Edit Checkout Page](https://app.kajabi.com/admin/offers/2149364021/edit)  
 - **Thank You Page URL**: [Thank You Page](https://www.pipersdojo.university/thank-you-tune-building-course)  
-- **Promo Code**: TUNEBUILD2025 (use this code at checkout to receive the discount)  
-- **Post-Purchase Instructions**: Instructions to access the course will be put on the thank-you page, and will also be emailed to the buyer's inbox.  
+- **Thank You Page Edit URL**: [Edit Thank You Page](https://app.kajabi.com/admin/landing_pages/2151241826)  
+- **Promo Code**: TUNEBUILD2025 (this code must be used at checkout to receive the discount)  
+- **Post-Purchase Instructions**: Instructions to access the course will be provided on the thank-you page and emailed to the buyer's inbox.  
 
 ### Additional Information
 
 - **Objections**: Common concerns addressed (see objections list).  
 - **FAQs**: Frequently asked questions related to the course (see FAQs list).  
 - **Testimonials**: Feedback from past participants is available (see testimonials list).  
-- **Instructors**: Details about the course instructors (see instructors list).  
+- **Instructors**: Details about the course instructors are provided (see instructors list).  
 - **Exhaustive Features**: Further detailed features available (see exhaustives list).  
 - **Guarantees**: Information about any guarantees associated with the course (see guarantees list).  
 
-This promotional offer serves as a unique opportunity for adult learners interested in improving their bagpiping skills through a structured and effective online learning platform.
+This promotional offer provides a unique opportunity for adult learners interested in enhancing their bagpiping skills through a structured online learning platform.
