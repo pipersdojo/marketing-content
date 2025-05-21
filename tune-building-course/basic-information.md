@@ -5,7 +5,7 @@
 - **Product Type**: Online Course  
 - **Regular Price**: $49  
 - **Promotional Price**: $15  
-- **Promotion Deadline**: July 16, 2025  
+- **Promotion Deadline**: July 16, 2025 04:00 UTC  
 - **Promotion Goal**: Sales  
 
 ### Access Information
@@ -17,7 +17,7 @@
 - **Thank You Page URL**: [Thank You Page](https://www.pipersdojo.university/thank-you-tune-building-course)  
 - **Thank You Page Edit URL**: [Edit Thank You Page](https://app.kajabi.com/admin/landing_pages/2151241826)  
 - **Promo Code**: TUNEBUILD2025 (this code must be used at checkout to receive the discount)  
-- **Post-Purchase Instructions**: Instructions to access the course will be provided on the thank-you page and emailed to the buyer's inbox.  
+- **Post-Purchase Instructions**: Instructions to access the course will be put on the thank-you page. We'll also email the instructions to their inbox.  
 
 ### Additional Information
 
