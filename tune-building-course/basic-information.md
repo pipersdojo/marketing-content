@@ -17,15 +17,15 @@
 - **Thank You Page URL**: [Thank You Page](https://www.pipersdojo.university/thank-you-tune-building-course)  
 - **Thank You Page Edit URL**: [Edit Thank You Page](https://app.kajabi.com/admin/landing_pages/2151241826)  
 - **Promo Code**: TUNEBUILD2025 (this code must be used at checkout to receive the discount)  
-- **Post-Purchase Instructions**: Instructions to access the course will be put on the thank-you page. We'll also email the instructions to their inbox.  
+- **Post-Purchase Instructions**: Instructions to access the course will be provided on the thank-you page and emailed to the buyer's inbox.  
 
 ### Additional Information
 
-- **Objections**: Common concerns addressed (see objections list).  
-- **FAQs**: Frequently asked questions related to the course (see FAQs list).  
-- **Testimonials**: Feedback from past participants is available (see testimonials list).  
-- **Instructors**: Details about the course instructors are provided (see instructors list).  
-- **Exhaustive Features**: Further detailed features available (see exhaustives list).  
-- **Guarantees**: Information about any guarantees associated with the course (see guarantees list).  
+- **Objections**: Common objections have been addressed in the promotion materials.  
+- **FAQs**: Frequently asked questions related to the course are available.  
+- **Testimonials**: Feedback from past participants is included for credibility.  
+- **Instructors**: Information about the course instructors is provided.  
+- **Exhaustive Features**: Detailed features of the course are available.  
+- **Guarantees**: Information about any guarantees associated with the course is provided.  
 
-This promotional offer provides a unique opportunity for adult learners interested in enhancing their bagpiping skills through a structured online learning platform.
+This promotional offer presents a significant opportunity for learners seeking an effective and structured approach to improving their bagpiping skills.
