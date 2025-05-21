@@ -1,8 +1,8 @@
 - **Promotion Name:** Tune Building Success Plan - Flash Sale
 - **Product Summary:** A systematic approach to learning bagpipe tunes that doesn't just help you learn the tune, it helps you become a better piper in the process.
 - **Product Type:** Online Course
-- **Regular Price:** $49
-- **Promotional Price:** $15
+- **Regular Price:** $49.00
+- **Promotional Price:** $15.00
 - **Promotion Deadline:** July 16, 2025, 04:00:00 UTC
 - **Promo Code:** TUNEBUILD2025 (must be used at checkout)
 - **Sales Page URL:** [Sales Page](https://www.pipersdojo.university/tune-building-process)
