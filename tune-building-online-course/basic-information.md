@@ -1,0 +1,13 @@
+- **Promotion Name:** Tune Building Success Plan - Flash Sale
+- **Product Summary:** A systematic approach to learning bagpipe tunes that doesn't just help you learn the tune, it helps you become a better piper in the process.
+- **Product Type:** Online Course
+- **Regular Price:** $49
+- **Promotional Price:** $15
+- **Promotion Deadline:** July 15, 2025, 11:59 AM (New York Time)
+- **Promo Code:** TUNEBUILD2025 (must be used at checkout)
+- **Sales Page URL:** [https://www.pipersdojo.university/tune-building-process](https://www.pipersdojo.university/tune-building-process)
+- **Sales Page Edit URL:** [https://app.kajabi.com/admin/landing_pages/2150113531](https://app.kajabi.com/admin/landing_pages/2150113531)
+- **Checkout Page URL:** [https://www.pipersdojo.university/offers/5jqkQM3m](https://www.pipersdojo.university/offers/5jqkQM3m)
+- **Checkout Page Edit URL:** [https://app.kajabi.com/admin/offers/2149364021/edit](https://app.kajabi.com/admin/offers/2149364021/edit)
+- **Thank You Page URL:** [https://www.pipersdojo.university/thank-you-tune-building-course](https://www.pipersdojo.university/thank-you-tune-building-course)
+- **Thank You Page Edit URL:** [https://app.kajabi.com/admin/landing_pages/2151241826](https://app.kajabi.com/admin/landing_pages/2151241826)
