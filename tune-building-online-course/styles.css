@@ -1,0 +1,171 @@
+:root {
+  --color-primary: #d32f2f;     /* Primary brand color */
+  --color-secondary: #1976d2;   /* Secondary accent color */
+  --color-tertiary: #fbc02d;    /* Tertiary supporting color */
+  
+  --font-heading: 'Georgia', serif;  /* Headline font */
+  --font-body: 'Helvetica Neue', Helvetica, Arial, sans-serif;  /* Body text font */
+
+  --text-dark: #222;             /* Dark text color */
+  --text-light: #fff;            /* Light text color */
+  --bg-light: #f9f9f9;           /* Light background color */
+  --bg-dark: #333;               /* Dark background color */
+
+  --spacing-xl: 48px;            /* Extra large spacing */
+  --spacing-lg: 32px;            /* Large spacing */
+  --spacing-md: 20px;            /* Medium spacing */
+  --spacing-sm: 12px;            /* Small spacing */
+  --spacing-xs: 8px;             /* Extra small spacing */
+
+  --border-radius: 8px;          /* Border radius for elements */
+  --max-width: 800px;            /* Maximum width for sections */
+}
+
+/* =============================
+   Base Typography & Layout
+   ============================= */
+body {
+  font-family: var(--font-body);
+  color: var(--text-dark);
+  line-height: 1.6;
+  background-color: var(--bg-light);
+  margin: 0;
+  padding: var(--spacing-lg);
+}
+
+section {
+  max-width: var(--max-width);
+  margin: 0 auto var(--spacing-xl);
+  padding: var(--spacing-md);
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  margin-top: 0;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+h3 {
+  font-size: 1.4rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+p {
+  margin-bottom: var(--spacing-sm);
+}
+
+strong {
+  font-weight: bold;
+}
+
+em {
+  font-style: italic;
+}
+
+ul, ol {
+  padding-left: 1.25em;
+  margin-bottom: var(--spacing-sm);
+}
+
+blockquote {
+  font-style: italic;
+  padding-left: 1em;
+  border-left: 4px solid var(--color-tertiary);
+  margin: var(--spacing-md) 0;
+}
+
+/* =============================
+   Custom Sections
+   ============================= */
+section.feature-benefit {
+  background-color: #fffbe6;
+  border-left: 6px solid var(--color-tertiary);
+}
+
+section.guarantee {
+  background-color: #e8f5e9;
+  border-left: 6px solid var(--color-primary);
+}
+
+section.instructor-profile {
+  text-align: center;
+}
+
+.instructor-profile figure {
+  margin: var(--spacing-sm) auto;
+  max-width: 200px;
+}
+
+.instructor-profile img {
+  width: 100%;
+  border-radius: 50%;
+}
+
+.instructor-profile figcaption {
+  font-style: italic;
+  margin-top: var(--spacing-xs);
+}
+
+/* =============================
+   Testimonials
+   ============================= */
+.testimonial {
+  background-color: #f1f8e9;
+  padding: var(--spacing-md);
+  border-left: 4px solid var(--color-secondary);
+}
+
+.testimonial img {
+  width: 100px;
+  border-radius: 50%;
+  float: left;
+  margin-right: var(--spacing-sm);
+}
+
+.testimonial blockquote {
+  margin: 0;
+}
+
+/* =============================
+   Pricing Cards (starter)
+   ============================= */
+.pricing-card {
+  border: 2px solid var(--color-primary);
+  padding: var(--spacing-lg);
+  text-align: center;
+  background: white;
+  border-radius: var(--border-radius);
+}
+
+.pricing-card h2 {
+  color: var(--color-primary);
+}
+
+.pricing-card .price {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--color-secondary);
+}
+
+.pricing-card .original-price {
+  text-decoration: line-through;
+  color: gray;
+  margin-right: var(--spacing-xs);
+}
+
+.pricing-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.pricing-card ul li {
+  margin-bottom: var(--spacing-xs);
+}
