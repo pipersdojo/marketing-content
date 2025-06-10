@@ -1,0 +1,175 @@
+:root {
+  --color-primary: #d32f2f;     /* Primary brand color */
+  --color-secondary: #1976d2;   /* Secondary accent color */
+  --color-tertiary: #fbc02d;    /* Tertiary supporting color */
+  
+  --font-heading: 'Georgia', serif;  /* Headline font */
+  --font-body: 'Helvetica Neue', Helvetica, Arial, sans-serif;  /* Body text font */
+
+  --text-dark: #222;              /* Default dark text color */
+  --text-light: #fff;             /* Default light text color */
+  --bg-light: #f9f9f9;            /* Background color for light sections */
+  --bg-dark: #333;                 /* Background color for dark sections */
+
+  --spacing-xl: 48px;             /* Extra large spacing */
+  --spacing-lg: 32px;             /* Large spacing */
+  --spacing-md: 20px;             /* Medium spacing */
+  --spacing-sm: 12px;             /* Small spacing */
+  --spacing-xs: 8px;              /* Extra small spacing */
+
+  --border-radius: 8px;           /* Default border radius for elements */
+  --max-width: 800px;             /* Maximum width for content sections */
+}
+
+/* ============================= 
+   Base Typography & Layout 
+   ============================= */
+
+body {
+  font-family: var(--font-body);                    /* Body text font */
+  color: var(--text-dark);                           /* Dark text color */
+  line-height: 1.6;                                 /* Line height for readability */
+  background-color: var(--bg-light);                 /* Light background color */
+  margin: 0;                                         /* Remove default margin */
+  padding: var(--spacing-lg);                        /* Add large padding */
+}
+
+section {
+  max-width: var(--max-width);                       /* Limit section width */
+  margin: 0 auto var(--spacing-xl);                 /* Center section and add bottom margin */
+  padding: var(--spacing-md);                        /* Add medium padding */
+  background: white;                                 /* White background for sections */
+  border-radius: var(--border-radius);               /* Rounded corners */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);           /* Subtle shadow for depth */
+}
+
+h1, h2, h3 {
+  font-family: var(--font-heading);                  /* Heading font */
+  color: var(--color-primary);                        /* Primary color for headings */
+  margin-top: 0;                                     /* Remove top margin */
+}
+
+h2 {
+  font-size: 2rem;                                   /* Size for secondary headings */
+  margin-bottom: var(--spacing-sm);                  /* Bottom margin for spacing */
+}
+
+h3 {
+  font-size: 1.4rem;                                 /* Size for tertiary headings */
+  margin-bottom: var(--spacing-xs);                  /* Bottom margin for spacing */
+}
+
+p {
+  margin-bottom: var(--spacing-sm);                  /* Bottom margin for paragraphs */
+}
+
+strong {
+  font-weight: bold;                                 /* Bold text for emphasis */
+}
+
+em {
+  font-style: italic;                                /* Italic text for emphasis */
+}
+
+ul, ol {
+  padding-left: 1.25em;                             /* Indented lists */
+  margin-bottom: var(--spacing-sm);                  /* Bottom margin for lists */
+}
+
+blockquote {
+  font-style: italic;                                /* Italic style for blockquotes */
+  padding-left: 1em;                                /* Indentation for blockquotes */
+  border-left: 4px solid var(--color-tertiary);     /* Tertiary color border for emphasis */
+  margin: var(--spacing-md) 0;                       /* Vertical margin for blockquotes */
+}
+
+/* ============================= 
+   Custom Sections 
+   ============================= */
+
+section.feature-benefit {
+  background-color: #fffbe6;                         /* Light background specific to feature benefits */
+  border-left: 6px solid var(--color-tertiary);     /* Tertiary color border */
+}
+
+section.guarantee {
+  background-color: #e8f5e9;                         /* Light green background for guarantee sections */
+  border-left: 6px solid var(--color-primary);       /* Primary color border */
+}
+
+section.instructor-profile {
+  text-align: center;                                 /* Center text for instructor profile */
+}
+
+.instructor-profile figure {
+  margin: var(--spacing-sm) auto;                    /* Center figure with margin */
+  max-width: 200px;                                  /* Limit figure width */
+}
+
+.instructor-profile img {
+  width: 100%;                                       /* Full width images */
+  border-radius: 50%;                                /* Circular images */
+}
+
+.instructor-profile figcaption {
+  font-style: italic;                                /* Italic style for instructor captions */
+  margin-top: var(--spacing-xs);                     /* Margin for spacing above caption */
+}
+
+/* ============================= 
+   Testimonials 
+   ============================= */
+
+.testimonial {
+  background-color: #f1f8e9;                         /* Light background for testimonials */
+  padding: var(--spacing-md);                        /* Padding for testimonial block */
+  border-left: 4px solid var(--color-secondary);     /* Secondary color border */
+}
+
+.testimonial img {
+  width: 100px;                                     /* Fixed width for testimonial images */
+  border-radius: 50%;                                /* Circular images */
+  float: left;                                       /* Float images to the left */
+  margin-right: var(--spacing-sm);                   /* Spacing to the right of images */
+}
+
+.testimonial blockquote {
+  margin: 0;                                         /* No margin for blockquote in testimonial */
+}
+
+/* ============================= 
+   Pricing Cards (starter) 
+   ============================= */
+
+.pricing-card {
+  border: 2px solid var(--color-primary);            /* Primary color border for pricing cards */
+  padding: var(--spacing-lg);                        /* Large padding */
+  text-align: center;                               /* Centered text alignment */
+  background: white;                                 /* White background for pricing cards */
+  border-radius: var(--border-radius);               /* Rounded corners */
+}
+
+.pricing-card h2 {
+  color: var(--color-primary);                        /* Primary color for pricing card headings */
+}
+
+.pricing-card .price {
+  font-size: 2rem;                                   /* Large font size for price */
+  font-weight: bold;                                 /* Bold weight for pricing */
+  color: var(--color-secondary);                     /* Secondary color for pricing text */
+}
+
+.pricing-card .original-price {
+  text-decoration: line-through;                      /* Line-through for original price */
+  color: gray;                                      /* Gray color for original price */
+  margin-right: var(--spacing-xs);                   /* Spacing to the right */
+}
+
+.pricing-card ul {
+  list-style: none;                                   /* No default list style */
+  padding: 0;                                       /* No padding for list */
+}
+
+.pricing-card ul li {
+  margin-bottom: var(--spacing-xs);                  /* Spacing for list items */
+}
