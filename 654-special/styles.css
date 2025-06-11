@@ -6,170 +6,166 @@
   --font-heading: 'Georgia', serif;  /* Headline font */
   --font-body: 'Helvetica Neue', Helvetica, Arial, sans-serif;  /* Body text font */
 
-  --text-dark: #222;              /* Default dark text color */
-  --text-light: #fff;             /* Default light text color */
-  --bg-light: #f9f9f9;            /* Background color for light sections */
-  --bg-dark: #333;                 /* Background color for dark sections */
+  --text-dark: #222;             /* Dark text color */
+  --text-light: #fff;            /* Light text color */
+  --bg-light: #f9f9f9;           /* Light background color */
+  --bg-dark: #333;               /* Dark background color */
 
-  --spacing-xl: 48px;             /* Extra large spacing */
-  --spacing-lg: 32px;             /* Large spacing */
-  --spacing-md: 20px;             /* Medium spacing */
-  --spacing-sm: 12px;             /* Small spacing */
-  --spacing-xs: 8px;              /* Extra small spacing */
+  --spacing-xl: 48px;            /* Extra-large spacing */
+  --spacing-lg: 32px;            /* Large spacing */
+  --spacing-md: 20px;            /* Medium spacing */
+  --spacing-sm: 12px;            /* Small spacing */
+  --spacing-xs: 8px;             /* Extra-small spacing */
 
-  --border-radius: 8px;           /* Default border radius for elements */
-  --max-width: 800px;             /* Maximum width for content sections */
+  --border-radius: 8px;          /* Border radius for rounded corners */
+  --max-width: 800px;            /* Maximum width for content layout */
 }
 
-/* ============================= 
-   Base Typography & Layout 
+/* =============================
+   Base Typography & Layout
    ============================= */
-
 body {
-  font-family: var(--font-body);                    /* Body text font */
-  color: var(--text-dark);                           /* Dark text color */
-  line-height: 1.6;                                 /* Line height for readability */
-  background-color: var(--bg-light);                 /* Light background color */
-  margin: 0;                                         /* Remove default margin */
-  padding: var(--spacing-lg);                        /* Add large padding */
+  font-family: var(--font-body);          /* Body font */
+  color: var(--text-dark);                 /* Dark text */
+  line-height: 1.6;                        /* Line height for readability */
+  background-color: var(--bg-light);       /* Light background */
+  margin: 0;                               /* Remove default margin */
+  padding: var(--spacing-lg);              /* Large padding */
 }
 
 section {
-  max-width: var(--max-width);                       /* Limit section width */
-  margin: 0 auto var(--spacing-xl);                 /* Center section and add bottom margin */
-  padding: var(--spacing-md);                        /* Add medium padding */
-  background: white;                                 /* White background for sections */
-  border-radius: var(--border-radius);               /* Rounded corners */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);           /* Subtle shadow for depth */
+  max-width: var(--max-width);             /* Limit section width */
+  margin: 0 auto var(--spacing-xl);       /* Center section horizontally */
+  padding: var(--spacing-md);              /* Medium padding */
+  background: white;                       /* White background */
+  border-radius: var(--border-radius);     /* Rounded corners */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Subtle shadow */
 }
 
 h1, h2, h3 {
-  font-family: var(--font-heading);                  /* Heading font */
-  color: var(--color-primary);                        /* Primary color for headings */
-  margin-top: 0;                                     /* Remove top margin */
+  font-family: var(--font-heading);       /* Headline font */
+  color: var(--color-primary);             /* Primary color for headings */
+  margin-top: 0;                           /* Remove top margin from headings */
 }
 
 h2 {
-  font-size: 2rem;                                   /* Size for secondary headings */
-  margin-bottom: var(--spacing-sm);                  /* Bottom margin for spacing */
+  font-size: 2rem;                         /* Font size for h2 */
+  margin-bottom: var(--spacing-sm);       /* Small bottom margin */
 }
 
 h3 {
-  font-size: 1.4rem;                                 /* Size for tertiary headings */
-  margin-bottom: var(--spacing-xs);                  /* Bottom margin for spacing */
+  font-size: 1.4rem;                       /* Font size for h3 */
+  margin-bottom: var(--spacing-xs);        /* Extra-small bottom margin */
 }
 
 p {
-  margin-bottom: var(--spacing-sm);                  /* Bottom margin for paragraphs */
+  margin-bottom: var(--spacing-sm);        /* Small bottom margin for paragraphs */
 }
 
 strong {
-  font-weight: bold;                                 /* Bold text for emphasis */
+  font-weight: bold;                       /* Bold text for strong */
 }
 
 em {
-  font-style: italic;                                /* Italic text for emphasis */
+  font-style: italic;                      /* Italic text for emphasis */
 }
 
 ul, ol {
-  padding-left: 1.25em;                             /* Indented lists */
-  margin-bottom: var(--spacing-sm);                  /* Bottom margin for lists */
+  padding-left: 1.25em;                   /* Indentation for lists */
+  margin-bottom: var(--spacing-sm);        /* Small bottom margin */
 }
 
 blockquote {
-  font-style: italic;                                /* Italic style for blockquotes */
-  padding-left: 1em;                                /* Indentation for blockquotes */
-  border-left: 4px solid var(--color-tertiary);     /* Tertiary color border for emphasis */
-  margin: var(--spacing-md) 0;                       /* Vertical margin for blockquotes */
+  font-style: italic;                      /* Italic style for blockquotes */
+  padding-left: 1em;                       /* Indentation for blockquotes */
+  border-left: 4px solid var(--color-tertiary); /* Left border with tertiary color */
+  margin: var(--spacing-md) 0;            /* Medium vertical margin */
 }
 
-/* ============================= 
-   Custom Sections 
+/* =============================
+   Custom Sections
    ============================= */
-
 section.feature-benefit {
-  background-color: #fffbe6;                         /* Light background specific to feature benefits */
-  border-left: 6px solid var(--color-tertiary);     /* Tertiary color border */
+  background-color: #fffbe6;              /* Light yellow background for feature benefits */
+  border-left: 6px solid var(--color-tertiary); /* Left border with tertiary color */
 }
 
 section.guarantee {
-  background-color: #e8f5e9;                         /* Light green background for guarantee sections */
-  border-left: 6px solid var(--color-primary);       /* Primary color border */
+  background-color: #e8f5e9;               /* Light green background for guarantees */
+  border-left: 6px solid var(--color-primary); /* Left border with primary color */
 }
 
 section.instructor-profile {
-  text-align: center;                                 /* Center text for instructor profile */
+  text-align: center;                      /* Centered text for instructor profiles */
 }
 
 .instructor-profile figure {
-  margin: var(--spacing-sm) auto;                    /* Center figure with margin */
-  max-width: 200px;                                  /* Limit figure width */
+  margin: var(--spacing-sm) auto;         /* Center figure with small margin */
+  max-width: 200px;                       /* Limit maximum width for instructor image */
 }
 
 .instructor-profile img {
-  width: 100%;                                       /* Full width images */
-  border-radius: 50%;                                /* Circular images */
+  width: 100%;                            /* Full width for instructor image */
+  border-radius: 50%;                     /* Circular image */
 }
 
 .instructor-profile figcaption {
-  font-style: italic;                                /* Italic style for instructor captions */
-  margin-top: var(--spacing-xs);                     /* Margin for spacing above caption */
+  font-style: italic;                      /* Italic style for figure captions */
+  margin-top: var(--spacing-xs);          /* Extra-small top margin */
 }
 
-/* ============================= 
-   Testimonials 
+/* =============================
+   Testimonials
    ============================= */
-
 .testimonial {
-  background-color: #f1f8e9;                         /* Light background for testimonials */
-  padding: var(--spacing-md);                        /* Padding for testimonial block */
-  border-left: 4px solid var(--color-secondary);     /* Secondary color border */
+  background-color: #f1f8e9;               /* Light green background for testimonials */
+  padding: var(--spacing-md);              /* Medium padding */
+  border-left: 4px solid var(--color-secondary); /* Left border with secondary color */
 }
 
 .testimonial img {
-  width: 100px;                                     /* Fixed width for testimonial images */
-  border-radius: 50%;                                /* Circular images */
-  float: left;                                       /* Float images to the left */
-  margin-right: var(--spacing-sm);                   /* Spacing to the right of images */
+  width: 100px;                            /* Fixed width for testimonial images */
+  border-radius: 50%;                      /* Circular testimonial image */
+  float: left;                             /* Float left for image */
+  margin-right: var(--spacing-sm);        /* Small right margin */
 }
 
 .testimonial blockquote {
-  margin: 0;                                         /* No margin for blockquote in testimonial */
+  margin: 0;                               /* Remove default margin */
 }
 
-/* ============================= 
-   Pricing Cards (starter) 
+/* =============================
+   Pricing Cards (starter)
    ============================= */
-
 .pricing-card {
-  border: 2px solid var(--color-primary);            /* Primary color border for pricing cards */
-  padding: var(--spacing-lg);                        /* Large padding */
-  text-align: center;                               /* Centered text alignment */
-  background: white;                                 /* White background for pricing cards */
-  border-radius: var(--border-radius);               /* Rounded corners */
+  border: 2px solid var(--color-primary);  /* Border with primary color */
+  padding: var(--spacing-lg);              /* Large padding */
+  text-align: center;                      /* Center text for pricing cards */
+  background: white;                       /* White background for pricing cards */
+  border-radius: var(--border-radius);     /* Rounded corners */
 }
 
 .pricing-card h2 {
-  color: var(--color-primary);                        /* Primary color for pricing card headings */
+  color: var(--color-primary);             /* Color for pricing card headings */
 }
 
 .pricing-card .price {
-  font-size: 2rem;                                   /* Large font size for price */
-  font-weight: bold;                                 /* Bold weight for pricing */
-  color: var(--color-secondary);                     /* Secondary color for pricing text */
+  font-size: 2rem;                         /* Large font size for price */
+  font-weight: bold;                       /* Bold font for price */
+  color: var(--color-secondary);           /* Color for price */
 }
 
 .pricing-card .original-price {
-  text-decoration: line-through;                      /* Line-through for original price */
-  color: gray;                                      /* Gray color for original price */
-  margin-right: var(--spacing-xs);                   /* Spacing to the right */
+  text-decoration: line-through;           /* Strike-through for original price */
+  color: gray;                             /* Gray color for original price */
+  margin-right: var(--spacing-xs);        /* Extra-small right margin */
 }
 
 .pricing-card ul {
-  list-style: none;                                   /* No default list style */
-  padding: 0;                                       /* No padding for list */
+  list-style: none;                        /* Remove default list styles */
+  padding: 0;                             /* Remove padding for pricing card lists */
 }
 
 .pricing-card ul li {
-  margin-bottom: var(--spacing-xs);                  /* Spacing for list items */
+  margin-bottom: var(--spacing-xs);        /* Extra-small bottom margin for list items */
 }
