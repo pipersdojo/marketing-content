@@ -6,6 +6,6 @@
 - **Promotion Deadline:** July 11, 2025 at midnight New York time [Set Up Event Timer in Kajabi](https://app.kajabi.com/admin/sites/2148200488/events)  
 - **Max Purchases:** Not specified  
 - **Promo Code:** SIXFIVEFOUR (must be used at checkout) [Set Up Promo Code in Kajabi](https://app.kajabi.com/admin/sites/2148200488/coupons)  
-- **Sales Page URL:** [View Sales Page](https://www.pipersdojo.university/654-special-basic-membership) | [View Sales Page WITH CODE APPLIED]([https://www.pipersdojo.university/654-special-basic-membership](https://www.pipersdojo.university/offers/ZqFEkMLh?coupon_code=SIXFIVEFOUR)) | [Edit Sales Page](https://app.kajabi.com/admin/landing_pages/2151301863)  
+- **Sales Page URL:** [View Sales Page](https://www.pipersdojo.university/654-special-basic-membership) | [View Sales Page WITH CODE APPLIED](https://www.pipersdojo.university/offers/ZqFEkMLh?coupon_code=SIXFIVEFOUR) | [Edit Sales Page](https://app.kajabi.com/admin/landing_pages/2151301863)  
 - **Checkout Page URL:** [Checkout Now](https://www.pipersdojo.university/offers/ZqFEkMLh/checkout) | [Edit Checkout Page](https://app.kajabi.com/admin/offers/2149343312/checkout/edit)  
 - **Thank You Page URL:** [Thank You](https://www.pipersdojo.university/thank-you-basic-membership-purchase) | [Edit Thank You Page](https://app.kajabi.com/admin/landing_pages/2151301622)  
