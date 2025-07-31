@@ -1,0 +1,12 @@
+- **Promotion Name:** Back to Basics Workshop  
+- **Product Summary:** Go back to basics (or build your fundamentals from scratch) at this 3-day in-person workshop in Kansas City with Andrew Douglas, Carl Donley, and Griffin Hall  
+- **Product Type:** In-Person Event  
+- **Regular Price:** $549  
+- **Promotion Price:** $449  
+- **Max Purchases:** 24  
+- **Regular Deadline:** December 1, 2025 at midnight ny time [Set Up Event Timer in Kajabi](https://app.kajabi.com/admin/sites/2148200488/events)  
+- **Promotion Deadline:** October 20, 2025 at midnight ny time [Set Up Event Timer in Kajabi](https://app.kajabi.com/admin/sites/2148200488/events)  
+- **Promo Code:** B2B2026EARLY (must be used at checkout) [Set Up Promo Code in Kajabi](https://app.kajabi.com/admin/sites/2148200488/coupons)  
+- **Sales Page URL:** [View Sales Page](https://www.pipersdojo.university/calm) | [Edit Sales Page](https://app.kajabi.com/admin/themes/2157820396/settings/edit#/)  
+- **Checkout Page URL:** [View Checkout Page](https://www.pipersdojo.university/offers/of6ZLZhV/checkout) | [Edit Checkout Page](https://app.kajabi.com/admin/offers/2149677558/edit)  
+- **Thank You Page URL:** [View Thank You Page](https://www.pipersdojo.university/thank-you-back-2-basics-bagpipe-workshop-kansas-city) | [Edit Thank You Page](https://app.kajabi.com/admin/landing_pages/2151427506)  
