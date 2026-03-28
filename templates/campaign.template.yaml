@@ -1,0 +1,135 @@
+version: "1.0"
+campaign_id: ""
+created_at: ""
+updated_at: ""
+status: "intake"
+owners:
+  strategist: ""
+  copy_lead: ""
+  approver: ""
+brand:
+  name: ""
+  voice:
+    adjectives: []
+    do_not_use: []
+  compliance_notes: []
+offer:
+  name: ""
+  type: ""
+  summary: ""
+  regular_price: null
+  promo_price: null
+  currency: "USD"
+  promo_code: ""
+  deadline_iso: ""
+  quantity_limit: null
+  guarantee:
+    type: ""
+    terms: ""
+  links:
+    sales_page: ""
+    checkout_page: ""
+    thank_you_page: ""
+audience:
+  segment_name: ""
+  market_awareness_stage: ""
+  sophistication_level: ""
+  language_terms: []
+  decision_biases: []
+market_diagnosis_10:
+  keeps_them_awake_at_night: ""
+  fears: []
+  anger_and_targets: []
+  top_3_daily_frustrations: []
+  key_trends_affecting_them: []
+  secret_ardent_desires: []
+  built_in_decision_bias: ""
+  own_language: []
+  competitors_and_their_pitch: []
+  failed_competing_attempts: []
+buyer_priorities_ranked: []
+offer_decomposition:
+  features: []
+  benefits: []
+  hidden_benefit:
+    statement: ""
+    why_it_matters: ""
+damaging_admission:
+  disadvantages_or_flaws: []
+  admission_copy_blocks: []
+  mitigation_points: []
+objection_bank:
+  reasons_not_to_respond: []
+  rebuttals: []
+proof_library:
+  testimonials: []
+  authority_signals: []
+  roi_examples: []
+messaging_strategy:
+  core_promise: ""
+  unique_mechanism: ""
+  big_idea: ""
+  primary_formula: ""
+  headline_candidates: []
+  subheadline_candidates: []
+  story_assets:
+    founder_story: ""
+    customer_story: ""
+    slice_of_life_story: ""
+  cta:
+    primary: ""
+    urgency_devices: []
+    intimidation_elements: []
+    ego_appeals: []
+channel_plan:
+  channels:
+    email:
+      enabled: true
+      goals: []
+      constraints:
+        min_words: 0
+        max_words: 0
+      sequence_plan: []
+    landing_page:
+      enabled: true
+      sections_required: [hero, problem, mechanism, proof, offer, guarantee, faq, cta, ps]
+    social:
+      enabled: true
+      platforms: [instagram, facebook, linkedin, x]
+      post_count_target: 0
+      creative_needed: true
+    ads:
+      enabled: false
+      platforms: []
+      variants_target: 0
+content_outputs:
+  email_sequence: []
+  landing_page_copy: {}
+  social_posts: []
+  ad_copy: []
+  creative_briefs: []
+qa:
+  readiness_score: 0
+  copy_quality_score: 0
+  checklist_coverage:
+    total_items: 0
+    completed_items: 0
+    missing_required: []
+  fail_conditions_triggered: []
+  last_qa_run_at: ""
+approval:
+  required_reviewers: []
+  decisions: []
+scheduling:
+  publishing_window:
+    start_iso: ""
+    end_iso: ""
+  scheduled_items: []
+  export_paths: []
+reusables:
+  winning_headlines: []
+  winning_hooks: []
+  winning_objection_rebuttals: []
+  winning_ctas: []
+  lessons_learned: []
+revision_history: []
