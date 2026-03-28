@@ -1,0 +1,18 @@
+[project]
+name = "marketing-agent"
+version = "0.1.0"
+description = "Checklist-driven campaign memory and CLI for marketing workflows"
+requires-python = ">=3.10"
+
+[project.scripts]
+campaign = "marketing_agent.cli:main"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

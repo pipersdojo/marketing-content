@@ -1,0 +1,857 @@
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import sys
+import urllib.error
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+ROOT = Path.cwd()
+CAMPAIGNS_DIR = ROOT / "campaigns"
+CONTEXT_FILE = ROOT / ".campaign-context"
+PROMPTS_DIR = ROOT / "prompts"
+QA_RUBRIC_FILE = ROOT / "qa" / "rubric.json"
+
+REQUIRED_PATHS: dict[str, int] = {
+    "offer.name": 3,
+    "offer.summary": 3,
+    "offer.regular_price": 3,
+    "offer.promo_price": 3,
+    "offer.deadline_iso": 3,
+    "market_diagnosis_10.keeps_them_awake_at_night": 3,
+    "market_diagnosis_10.fears": 3,
+    "market_diagnosis_10.anger_and_targets": 3,
+    "market_diagnosis_10.top_3_daily_frustrations": 3,
+    "market_diagnosis_10.key_trends_affecting_them": 3,
+    "market_diagnosis_10.secret_ardent_desires": 3,
+    "market_diagnosis_10.built_in_decision_bias": 3,
+    "market_diagnosis_10.own_language": 3,
+    "market_diagnosis_10.competitors_and_their_pitch": 3,
+    "market_diagnosis_10.failed_competing_attempts": 3,
+    "buyer_priorities_ranked": 2,
+    "offer_decomposition.features": 3,
+    "offer_decomposition.benefits": 3,
+    "offer_decomposition.hidden_benefit.statement": 2,
+    "objection_bank.reasons_not_to_respond": 2,
+    "objection_bank.rebuttals": 2,
+    "messaging_strategy.cta.primary": 2,
+    "messaging_strategy.cta.urgency_devices": 2,
+}
+
+INTAKE_QUESTIONS: dict[str, str] = {
+    "market_diagnosis_10.keeps_them_awake_at_night": "What keeps them awake at night?",
+    "market_diagnosis_10.fears": "What are they afraid of?",
+    "market_diagnosis_10.anger_and_targets": "What are they angry about, and at whom?",
+    "market_diagnosis_10.top_3_daily_frustrations": "What are their top 3 daily frustrations?",
+    "market_diagnosis_10.key_trends_affecting_them": "What trends are impacting their life/business?",
+    "market_diagnosis_10.secret_ardent_desires": "What do they secretly desire most?",
+    "market_diagnosis_10.built_in_decision_bias": "Is there a decision-making bias?",
+    "market_diagnosis_10.own_language": "What language/jargon do they use?",
+    "market_diagnosis_10.competitors_and_their_pitch": "Who else sells similar offers, and how?",
+    "market_diagnosis_10.failed_competing_attempts": "What similar attempts have failed and why?",
+    "offer_decomposition.hidden_benefit.statement": "What hidden benefit matters deeply but isn't obvious?",
+    "objection_bank.reasons_not_to_respond": "What objections, doubts, fears, excuses prevent response?",
+    "messaging_strategy.cta.primary": "What is the primary CTA?",
+}
+
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def default_campaign() -> dict[str, Any]:
+    return {
+        "version": "1.0",
+        "campaign_id": "",
+        "created_at": "",
+        "updated_at": "",
+        "status": "intake",
+        "owners": {"strategist": "", "copy_lead": "", "approver": ""},
+        "brand": {"name": "", "voice": {"adjectives": [], "do_not_use": []}, "compliance_notes": []},
+        "offer": {
+            "name": "",
+            "type": "",
+            "summary": "",
+            "regular_price": None,
+            "promo_price": None,
+            "currency": "USD",
+            "promo_code": "",
+            "deadline_iso": "",
+            "quantity_limit": None,
+            "guarantee": {"type": "", "terms": ""},
+            "links": {"sales_page": "", "checkout_page": "", "thank_you_page": ""},
+        },
+        "audience": {
+            "segment_name": "",
+            "market_awareness_stage": "",
+            "sophistication_level": "",
+            "language_terms": [],
+            "decision_biases": [],
+        },
+        "market_diagnosis_10": {
+            "keeps_them_awake_at_night": "",
+            "fears": [],
+            "anger_and_targets": [],
+            "top_3_daily_frustrations": [],
+            "key_trends_affecting_them": [],
+            "secret_ardent_desires": [],
+            "built_in_decision_bias": "",
+            "own_language": [],
+            "competitors_and_their_pitch": [],
+            "failed_competing_attempts": [],
+        },
+        "buyer_priorities_ranked": [],
+        "offer_decomposition": {"features": [], "benefits": [], "hidden_benefit": {"statement": "", "why_it_matters": ""}},
+        "damaging_admission": {"disadvantages_or_flaws": [], "admission_copy_blocks": [], "mitigation_points": []},
+        "objection_bank": {"reasons_not_to_respond": [], "rebuttals": []},
+        "proof_library": {"testimonials": [], "authority_signals": [], "roi_examples": []},
+        "messaging_strategy": {
+            "core_promise": "",
+            "unique_mechanism": "",
+            "big_idea": "",
+            "primary_formula": "",
+            "headline_candidates": [],
+            "subheadline_candidates": [],
+            "story_assets": {"founder_story": "", "customer_story": "", "slice_of_life_story": ""},
+            "cta": {"primary": "", "urgency_devices": [], "intimidation_elements": [], "ego_appeals": []},
+        },
+        "channel_plan": {
+            "channels": {
+                "email": {"enabled": True, "goals": [], "constraints": {"min_words": 0, "max_words": 0}, "sequence_plan": []},
+                "landing_page": {"enabled": True, "sections_required": ["hero", "problem", "mechanism", "proof", "offer", "guarantee", "faq", "cta", "ps"]},
+                "social": {"enabled": True, "platforms": ["instagram", "facebook", "linkedin", "x"], "post_count_target": 0, "creative_needed": True},
+                "ads": {"enabled": False, "platforms": [], "variants_target": 0},
+            }
+        },
+        "content_outputs": {"email_sequence": [], "landing_page_copy": {}, "social_posts": [], "ad_copy": [], "creative_briefs": []},
+        "qa": {
+            "readiness_score": 0,
+            "copy_quality_score": 0,
+            "checklist_coverage": {"total_items": 0, "completed_items": 0, "missing_required": []},
+            "fail_conditions_triggered": [],
+            "last_qa_run_at": "",
+        },
+        "approval": {"required_reviewers": [], "decisions": []},
+        "scheduling": {"publishing_window": {"start_iso": "", "end_iso": ""}, "scheduled_items": [], "export_paths": []},
+        "reusables": {"winning_headlines": [], "winning_hooks": [], "winning_objection_rebuttals": [], "winning_ctas": [], "lessons_learned": []},
+        "revision_history": [],
+    }
+
+
+def _campaign_dir(campaign_id: str) -> Path:
+    return CAMPAIGNS_DIR / campaign_id
+
+
+def _campaign_file(campaign_id: str) -> Path:
+    return _campaign_dir(campaign_id) / "campaign.yaml"
+
+
+def _load(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text())
+
+
+def _save(path: Path, data: dict[str, Any]) -> None:
+    path.write_text(json.dumps(data, indent=2))
+
+
+def _require_active() -> tuple[str, Path, dict[str, Any]]:
+    if not CONTEXT_FILE.exists():
+        raise ValueError("No active campaign. Run: campaign open <campaign_id>")
+    campaign_id = CONTEXT_FILE.read_text().strip()
+    file_path = _campaign_file(campaign_id)
+    if not file_path.exists():
+        raise ValueError(f"Campaign file missing: {file_path}")
+    return campaign_id, file_path, _load(file_path)
+
+
+def _is_missing(value: Any) -> bool:
+    if value is None:
+        return True
+    if isinstance(value, str):
+        return value.strip() == ""
+    if isinstance(value, (list, dict)):
+        return len(value) == 0
+    return False
+
+
+def _get_path(data: dict[str, Any], path: str) -> Any:
+    cur: Any = data
+    for key in path.split("."):
+        if not isinstance(cur, dict) or key not in cur:
+            raise KeyError(path)
+        cur = cur[key]
+    return cur
+
+
+def _set_path(data: dict[str, Any], path: str, value: Any) -> Any:
+    cur: dict[str, Any] = data
+    keys = path.split(".")
+    for key in keys[:-1]:
+        if key not in cur or not isinstance(cur[key], dict):
+            cur[key] = {}
+        cur = cur[key]
+    old = cur.get(keys[-1])
+    cur[keys[-1]] = value
+    return old
+
+
+def _missing_required(data: dict[str, Any]) -> list[str]:
+    missing = []
+    for path in REQUIRED_PATHS:
+        try:
+            val = _get_path(data, path)
+        except KeyError:
+            missing.append(path)
+            continue
+        if _is_missing(val):
+            missing.append(path)
+    return missing
+
+
+def _readiness(data: dict[str, Any]) -> tuple[int, list[str]]:
+    total = sum(REQUIRED_PATHS.values())
+    missing = _missing_required(data)
+    rem = sum(REQUIRED_PATHS[p] for p in missing)
+    return round((total - rem) / total * 100), missing
+
+
+def _update_qa(data: dict[str, Any]) -> tuple[int, list[str]]:
+    score, missing = _readiness(data)
+    data["qa"]["readiness_score"] = score
+    data["qa"]["checklist_coverage"] = {
+        "total_items": len(REQUIRED_PATHS),
+        "completed_items": len(REQUIRED_PATHS) - len(missing),
+        "missing_required": missing,
+    }
+    data["updated_at"] = now_iso()
+    return score, missing
+
+
+def _write_change(campaign_id: str, path: str, old: Any, new: Any) -> None:
+    change_log = _campaign_dir(campaign_id) / "history" / "changes.log"
+    change_log.parent.mkdir(parents=True, exist_ok=True)
+    with change_log.open("a", encoding="utf-8") as f:
+        f.write(json.dumps({"timestamp": now_iso(), "path": path, "old": str(old)[:300], "new": str(new)[:300]}) + "\n")
+
+
+def cmd_create(args: argparse.Namespace) -> int:
+    cid = args.campaign_id
+    if len(cid) < 9 or cid[4] != "-" or cid[7] != "-":
+        raise ValueError("campaign_id must look like YYYY-MM-slug")
+    cdir = _campaign_dir(cid)
+    if cdir.exists() and not args.force:
+        raise ValueError(f"Campaign exists: {cid} (use --force to overwrite)")
+    cdir.mkdir(parents=True, exist_ok=True)
+    for sub in ["artifacts", "qa", "history", "exports"]:
+        (cdir / sub).mkdir(parents=True, exist_ok=True)
+        (cdir / sub / ".gitkeep").touch(exist_ok=True)
+    data = default_campaign()
+    data["campaign_id"] = cid
+    ts = now_iso()
+    data["created_at"] = ts
+    data["updated_at"] = ts
+    score, _ = _update_qa(data)
+    _save(_campaign_file(cid), data)
+    print(f"Created campaign: {cid}")
+    print(f"Readiness score: {score}")
+    return 0
+
+
+def cmd_list(_: argparse.Namespace) -> int:
+    CAMPAIGNS_DIR.mkdir(parents=True, exist_ok=True)
+    for d in sorted(p.name for p in CAMPAIGNS_DIR.iterdir() if p.is_dir()):
+        print(d)
+    return 0
+
+
+def cmd_open(args: argparse.Namespace) -> int:
+    cid = args.campaign_id
+    cfile = _campaign_file(cid)
+    if not cfile.exists():
+        raise ValueError(f"Campaign file not found: {cfile}")
+    CONTEXT_FILE.write_text(cid)
+    data = _load(cfile)
+    score, missing = _readiness(data)
+    print(f"Active campaign: {cid}")
+    print(f"Status: {data.get('status','unknown')}")
+    print(f"Readiness: {score}")
+    print(f"Missing required fields: {len(missing)}")
+    return 0
+
+
+def cmd_get(args: argparse.Namespace) -> int:
+    _, _, data = _require_active()
+    value = _get_path(data, args.path)
+    print(json.dumps(value, indent=2))
+    return 0
+
+
+def _parse_value(raw: str) -> Any:
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        low = raw.lower().strip()
+        if low == "true":
+            return True
+        if low == "false":
+            return False
+        if low == "null":
+            return None
+        try:
+            return int(raw)
+        except ValueError:
+            try:
+                return float(raw)
+            except ValueError:
+                return raw
+
+
+def _coerce_value_for_path(data: dict[str, Any], path: str, raw: str) -> Any:
+    """Coerce interactive answers based on existing field type."""
+    try:
+        current = _get_path(data, path)
+    except KeyError:
+        current = None
+
+    if isinstance(current, list):
+        stripped = raw.strip()
+        if stripped.startswith("["):
+            parsed = _parse_value(stripped)
+            if isinstance(parsed, list):
+                return parsed
+        return [item.strip() for item in raw.split(",") if item.strip()]
+    return _parse_value(raw)
+
+
+def _load_prompt(path: Path) -> str:
+    if not path.exists():
+        raise ValueError(f"Prompt file missing: {path}")
+    return path.read_text()
+
+
+def _resolve_prompts_dir() -> Path:
+    override = os.environ.get("MARKETING_AGENT_PROMPTS_DIR", "").strip()
+    if override:
+        return Path(override)
+    return PROMPTS_DIR
+
+
+def _resolve_rubric_file(path_arg: str | None) -> Path:
+    if path_arg:
+        return Path(path_arg)
+    override = os.environ.get("MARKETING_AGENT_RUBRIC_FILE", "").strip()
+    if override:
+        return Path(override)
+    return QA_RUBRIC_FILE
+
+
+def _load_rubric(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        raise ValueError(f"Rubric file missing: {path}")
+    try:
+        rubric = json.loads(path.read_text())
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid rubric JSON: {e}")
+    if "weights" not in rubric or not isinstance(rubric["weights"], dict):
+        raise ValueError("Rubric must contain a 'weights' object")
+    return rubric
+
+
+def _render_prompt(template: str, data: dict[str, Any], channel: str, variant: int) -> str:
+    return template.format(
+        campaign_id=data.get("campaign_id", ""),
+        offer_name=data.get("offer", {}).get("name", ""),
+        offer_summary=data.get("offer", {}).get("summary", ""),
+        cta=data.get("messaging_strategy", {}).get("cta", {}).get("primary", ""),
+        channel=channel,
+        variant=variant,
+        campaign_json=json.dumps(data, indent=2),
+    )
+
+
+def _openai_generate(system_prompt: str, user_prompt: str, model: str) -> str:
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY is required for --provider openai")
+
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        "temperature": 0.7,
+    }
+    req = urllib.request.Request(
+        url="https://api.openai.com/v1/chat/completions",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=90) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode("utf-8", errors="ignore")
+        raise ValueError(f"OpenAI request failed ({e.code}): {detail}")
+    except urllib.error.URLError as e:
+        raise ValueError(f"OpenAI request failed: {e.reason}")
+
+    try:
+        return body["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        raise ValueError("Unexpected OpenAI response format")
+
+
+def _parse_generated_text(raw_text: str, fallback_cta: str) -> dict[str, str]:
+    try:
+        parsed = json.loads(raw_text)
+        return {
+            "headline": str(parsed.get("headline", "")).strip(),
+            "body": str(parsed.get("body", "")).strip(),
+            "cta": str(parsed.get("cta", fallback_cta)).strip(),
+        }
+    except json.JSONDecodeError:
+        return {"headline": "", "body": raw_text.strip(), "cta": fallback_cta}
+
+
+def cmd_set(args: argparse.Namespace) -> int:
+    cid, cfile, data = _require_active()
+    new_val = _parse_value(args.value)
+    old_val = _set_path(data, args.path, new_val)
+    score, _ = _update_qa(data)
+    _save(cfile, data)
+    _write_change(cid, args.path, old_val, new_val)
+    print(f"Updated {args.path}")
+    print(f"Readiness: {score}")
+    return 0
+
+
+def cmd_save(_: argparse.Namespace) -> int:
+    cid, cfile, data = _require_active()
+    _update_qa(data)
+    _save(cfile, data)
+    snapshot = _campaign_dir(cid) / "history" / f"snapshot-{datetime.now().strftime('%Y%m%d-%H%M%S')}.yaml"
+    _save(snapshot, data)
+    print(f"Saved campaign and snapshot: {snapshot}")
+    return 0
+
+
+def cmd_readiness(_: argparse.Namespace) -> int:
+    _, cfile, data = _require_active()
+    score, missing = _update_qa(data)
+    _save(cfile, data)
+    print(json.dumps({"score": score, "status": data.get("status", "unknown"), "missing_required": missing}, indent=2))
+    return 0
+
+
+def cmd_intake(args: argparse.Namespace) -> int:
+    cid, cfile, data = _require_active()
+    _, missing = _readiness(data)
+    if not missing:
+        print("All required fields are complete.")
+        return 0
+    if args.interactive:
+        max_questions = args.max_questions if args.max_questions and args.max_questions > 0 else len(missing)
+        asked = 0
+        for p in missing:
+            if asked >= max_questions:
+                break
+            question = INTAKE_QUESTIONS.get(p, f"Provide value for {p}")
+            answer = input(f"{question}\n> ").strip()
+            if not answer:
+                continue
+            old_val = _get_path(data, p) if p in REQUIRED_PATHS else None
+            new_val = _coerce_value_for_path(data, p, answer)
+            _set_path(data, p, new_val)
+            _write_change(cid, p, old_val, new_val)
+            asked += 1
+        score, new_missing = _update_qa(data)
+        _save(cfile, data)
+        print(f"Saved {asked} answers.")
+        print(f"Readiness: {score}")
+        if new_missing:
+            print(f"Still missing: {len(new_missing)} required fields")
+        return 0
+    print("Missing required fields and intake prompts:\n")
+    for p in missing:
+        print(f"- {p}: {INTAKE_QUESTIONS.get(p, f'Provide value for {p}')}")
+    return 0
+
+
+def cmd_generate(args: argparse.Namespace) -> int:
+    cid, _, data = _require_active()
+    score, missing = _readiness(data)
+    if score < 85:
+        raise ValueError(f"Readiness score is {score}. Minimum 85 required. Missing: {', '.join(missing)}")
+    channels = [c.strip() for c in args.channels.split(",") if c.strip()]
+    adir = _campaign_dir(cid) / "artifacts"
+    adir.mkdir(parents=True, exist_ok=True)
+    prompts_dir = _resolve_prompts_dir()
+    system_template = _load_prompt(prompts_dir / "system.md")
+    fallback_cta = data.get("messaging_strategy", {}).get("cta", {}).get("primary", "")
+
+    for c in channels:
+        channel_template = _load_prompt(prompts_dir / "channels" / f"{c}.md")
+        variants: list[dict[str, Any]] = []
+        for i in range(1, args.variants + 1):
+            system_prompt = _render_prompt(system_template, data, c, i)
+            user_prompt = _render_prompt(channel_template, data, c, i)
+            if args.provider == "openai":
+                generated_text = _openai_generate(system_prompt, user_prompt, args.model)
+            else:
+                generated_text = json.dumps(
+                    {
+                        "headline": f"{c.title()} Variant {i}",
+                        "body": f"Template draft for {cid} ({c}) variant {i}.",
+                        "cta": fallback_cta,
+                    }
+                )
+            draft = _parse_generated_text(generated_text, fallback_cta)
+            variants.append(
+                {
+                    "variant": i,
+                    "provider": args.provider,
+                    "model": args.model if args.provider == "openai" else "template",
+                    "draft": draft,
+                    "raw": generated_text,
+                }
+            )
+
+        artifact = {
+            "campaign_id": cid,
+            "channel": c,
+            "generated_at": now_iso(),
+            "inputs": {
+                "core_promise": data.get("messaging_strategy", {}).get("core_promise", ""),
+                "big_idea": data.get("messaging_strategy", {}).get("big_idea", ""),
+                "cta": fallback_cta,
+            },
+            "variants": variants,
+        }
+        _save(adir / f"{c}.generated.yaml", artifact)
+        print(f"Generated artifact: {adir / f'{c}.generated.yaml'} ({len(variants)} variants via {args.provider})")
+    return 0
+
+
+def cmd_qa(_: argparse.Namespace) -> int:
+    cid, cfile, data = _require_active()
+    score, missing = _readiness(data)
+    rubric = _load_rubric(_resolve_rubric_file(_.rubric))
+    weights: dict[str, int] = rubric.get("weights", {})
+    strict_fail_conditions: list[str] = rubric.get("strict_fail_conditions", [])
+
+    artifacts = []
+    for f in sorted((_campaign_dir(cid) / "artifacts").glob("*.generated.yaml")):
+        artifacts.append(_load(f))
+
+    has_headline = any(
+        variant.get("draft", {}).get("headline", "").strip()
+        for artifact in artifacts
+        for variant in artifact.get("variants", [])
+    ) or bool(data.get("messaging_strategy", {}).get("headline_candidates"))
+    has_cta = bool(data.get("messaging_strategy", {}).get("cta", {}).get("primary", "").strip())
+    has_guarantee = bool(str(data.get("offer", {}).get("guarantee", {}).get("terms", "")).strip())
+    has_objections = bool(data.get("objection_bank", {}).get("rebuttals", []))
+    has_urgency = bool(data.get("messaging_strategy", {}).get("cta", {}).get("urgency_devices", []))
+    has_proof = bool(data.get("proof_library", {}).get("testimonials", []) or data.get("proof_library", {}).get("authority_signals", []))
+
+    dimension_scores = {
+        "readiness": score,
+        "headline_presence": 100 if has_headline else 0,
+        "cta_presence": 100 if has_cta else 0,
+        "guarantee": 100 if has_guarantee else 0,
+        "objection_handling": 100 if has_objections else 0,
+        "urgency": 100 if has_urgency else 0,
+        "proof_assets": 100 if has_proof else 0,
+    }
+
+    fails = []
+    if not has_headline:
+        fails.append("headline_missing")
+    if not has_cta:
+        fails.append("missing_primary_cta")
+    if not has_guarantee:
+        fails.append("guarantee_terms_missing")
+    if not has_objections:
+        fails.append("objection_rebuttals_missing")
+
+    weighted_total = sum(weights.values()) if weights else 100
+    weighted_score = 0.0
+    for key, w in weights.items():
+        weighted_score += (dimension_scores.get(key, 0) / 100.0) * w
+    quality = int(round((weighted_score / weighted_total) * 100)) if weighted_total else 0
+
+    rewrite_suggestions = []
+    if "headline_missing" in fails:
+        rewrite_suggestions.append("Add at least 5 headline candidates that match the top buyer priority.")
+    if "missing_primary_cta" in fails:
+        rewrite_suggestions.append("Define messaging_strategy.cta.primary with explicit action language.")
+    if "guarantee_terms_missing" in fails:
+        rewrite_suggestions.append("Add clear guarantee terms under offer.guarantee.terms to reduce buyer risk.")
+    if "objection_rebuttals_missing" in fails:
+        rewrite_suggestions.append("Add objection_bank.rebuttals entries mapping objection -> response.")
+
+    report = {
+        "campaign_id": cid,
+        "ran_at": now_iso(),
+        "rubric_file": str(_resolve_rubric_file(_.rubric)),
+        "readiness_score": score,
+        "copy_quality_score": quality,
+        "dimension_scores": dimension_scores,
+        "missing_required": missing,
+        "fail_conditions": fails,
+        "rewrite_suggestions": rewrite_suggestions,
+    }
+    qdir = _campaign_dir(cid) / "qa"
+    qdir.mkdir(parents=True, exist_ok=True)
+    rpt = qdir / f"qa-{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
+    rpt.write_text(json.dumps(report, indent=2))
+    data["qa"]["readiness_score"] = score
+    data["qa"]["copy_quality_score"] = quality
+    data["qa"]["fail_conditions_triggered"] = fails
+    data["qa"]["last_qa_run_at"] = report["ran_at"]
+    data["updated_at"] = now_iso()
+    _save(cfile, data)
+    print(f"QA report written: {rpt}")
+    print(json.dumps(report, indent=2))
+    if _.strict and any(cond in fails for cond in strict_fail_conditions):
+        return 2
+    return 0
+
+
+def cmd_export(_: argparse.Namespace) -> int:
+    cid, cfile, data = _require_active()
+    adir = _campaign_dir(cid) / "artifacts"
+    edir = _campaign_dir(cid) / "exports"
+    edir.mkdir(parents=True, exist_ok=True)
+    artifacts = []
+    for f in sorted(adir.glob("*.generated.yaml")):
+        artifacts.append(_load(f))
+    package = {"campaign_id": cid, "exported_at": now_iso(), "offer": data.get("offer", {}), "channels": artifacts}
+    out = edir / f"scheduler-package-{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
+    out.write_text(json.dumps(package, indent=2))
+    data["scheduling"]["export_paths"].append(str(out))
+    data["updated_at"] = now_iso()
+    _save(cfile, data)
+    print(f"Exported package: {out}")
+    return 0
+
+
+def cmd_run(args: argparse.Namespace) -> int:
+    """Run end-to-end flow: generate -> qa -> export."""
+    _, _, data = _require_active()
+    score, missing = _readiness(data)
+    if score < 85:
+        print(
+            f"Error: readiness score is {score}; minimum 85 required before run. Missing: {', '.join(missing)}",
+            file=sys.stderr,
+        )
+        return 2
+
+    gen_args = argparse.Namespace(
+        channels=args.channels,
+        provider=args.provider,
+        model=args.model,
+        variants=args.variants,
+    )
+    gen_rc = cmd_generate(gen_args)
+    if gen_rc != 0:
+        return gen_rc
+
+    qa_args = argparse.Namespace(rubric=args.rubric, strict=args.strict_qa)
+    qa_rc = cmd_qa(qa_args)
+    if qa_rc != 0:
+        return qa_rc
+
+    if args.skip_export:
+        print("Run completed (export skipped).")
+        return 0
+
+    exp_rc = cmd_export(argparse.Namespace())
+    if exp_rc != 0:
+        return exp_rc
+
+    print("Run completed: generate + qa + export")
+    return 0
+
+
+def _slugify(text: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+    return slug or "campaign"
+
+
+def _today_prefix() -> str:
+    return datetime.now().strftime("%Y-%m")
+
+
+def _extract_campaign_id(text: str) -> str | None:
+    m = re.search(r"(20\d{2}-\d{2}-[a-z0-9-]+)", text.lower())
+    if m:
+        return m.group(1)
+    return None
+
+
+def _chat_handle_message(message: str) -> int:
+    msg = message.strip()
+    low = msg.lower()
+    if not msg:
+        print("Say something like: 'hey bro, i need to make a new marketing campaign'.")
+        return 0
+
+    if any(phrase in low for phrase in ["new marketing campaign", "new campaign", "create campaign"]):
+        title = re.sub(r".*(new marketing campaign|new campaign|create campaign)\s*", "", low).strip()
+        campaign_id = f"{_today_prefix()}-{_slugify(title or 'new-campaign')}"
+        rc = cmd_create(argparse.Namespace(campaign_id=campaign_id, force=False))
+        if rc != 0:
+            return rc
+        rc = cmd_open(argparse.Namespace(campaign_id=campaign_id))
+        if rc != 0:
+            return rc
+        print(f"Got you. New campaign is ready: {campaign_id}")
+        print("Next: run `campaign intake --interactive` and answer the prompts.")
+        return 0
+
+    if "open campaign" in low:
+        cid = _extract_campaign_id(low)
+        if not cid:
+            print("I need a campaign id, e.g. 'open campaign 2026-04-spring-launch'.")
+            return 0
+        return cmd_open(argparse.Namespace(campaign_id=cid))
+
+    if "run campaign" in low or low.startswith("run "):
+        rc = cmd_run(
+            argparse.Namespace(
+                channels="email,landing_page,social",
+                provider="template",
+                model="gpt-4.1-mini",
+                variants=2,
+                rubric="",
+                strict_qa=False,
+                skip_export=False,
+            )
+        )
+        if rc == 0:
+            print("Done. I ran generate + qa + export.")
+        return rc
+
+    if "help" in low or "what can you do" in low:
+        print("Try one of these:")
+        print("- 'hey bro, i need to make a new marketing campaign'")
+        print("- 'open campaign 2026-04-your-campaign'")
+        print("- 'run campaign'")
+        print("- 'exit'")
+        return 0
+
+    print("I didn't catch that. Say 'help' for examples.")
+    return 0
+
+
+def cmd_chat(args: argparse.Namespace) -> int:
+    """Plain-text chat interface for non-technical users."""
+    if args.message:
+        return _chat_handle_message(" ".join(args.message))
+
+    print("Marketing Agent Chat (type 'exit' to quit)")
+    while True:
+        try:
+            user_text = input("you> ").strip()
+        except EOFError:
+            print()
+            return 0
+        if user_text.lower() in {"exit", "quit"}:
+            print("later 👋")
+            return 0
+        rc = _chat_handle_message(user_text)
+        if rc != 0:
+            return rc
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="campaign", description="Campaign memory CLI")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p = sub.add_parser("create")
+    p.add_argument("campaign_id")
+    p.add_argument("--force", action="store_true")
+    p.set_defaults(func=cmd_create)
+
+    p = sub.add_parser("list")
+    p.set_defaults(func=cmd_list)
+
+    p = sub.add_parser("open")
+    p.add_argument("campaign_id")
+    p.set_defaults(func=cmd_open)
+
+    p = sub.add_parser("get")
+    p.add_argument("path")
+    p.set_defaults(func=cmd_get)
+
+    p = sub.add_parser("set")
+    p.add_argument("path")
+    p.add_argument("value")
+    p.set_defaults(func=cmd_set)
+
+    p = sub.add_parser("save")
+    p.set_defaults(func=cmd_save)
+
+    p = sub.add_parser("readiness-score")
+    p.set_defaults(func=cmd_readiness)
+
+    p = sub.add_parser("intake")
+    p.add_argument("--interactive", action="store_true")
+    p.add_argument("--max-questions", type=int, default=0)
+    p.set_defaults(func=cmd_intake)
+
+    p = sub.add_parser("generate")
+    p.add_argument("--channels", default="email,landing_page,social")
+    p.add_argument("--provider", default="template", choices=["template", "openai"])
+    p.add_argument("--model", default="gpt-4.1-mini")
+    p.add_argument("--variants", type=int, default=3)
+    p.set_defaults(func=cmd_generate)
+
+    p = sub.add_parser("qa")
+    p.add_argument("--rubric", default="")
+    p.add_argument("--strict", action="store_true")
+    p.set_defaults(func=cmd_qa)
+
+    p = sub.add_parser("export")
+    p.set_defaults(func=cmd_export)
+
+    p = sub.add_parser("run")
+    p.add_argument("--channels", default="email,landing_page,social")
+    p.add_argument("--provider", default="template", choices=["template", "openai"])
+    p.add_argument("--model", default="gpt-4.1-mini")
+    p.add_argument("--variants", type=int, default=3)
+    p.add_argument("--rubric", default="")
+    p.add_argument("--strict-qa", action="store_true")
+    p.add_argument("--skip-export", action="store_true")
+    p.set_defaults(func=cmd_run)
+
+    p = sub.add_parser("chat")
+    p.add_argument("message", nargs="*")
+    p.set_defaults(func=cmd_chat)
+
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    try:
+        return args.func(args)
+    except (ValueError, KeyError) as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
