@@ -305,6 +305,23 @@ def _parse_value(raw: str) -> Any:
                 return raw
 
 
+def _coerce_value_for_path(data: dict[str, Any], path: str, raw: str) -> Any:
+    """Coerce interactive answers based on existing field type."""
+    try:
+        current = _get_path(data, path)
+    except KeyError:
+        current = None
+
+    if isinstance(current, list):
+        stripped = raw.strip()
+        if stripped.startswith("["):
+            parsed = _parse_value(stripped)
+            if isinstance(parsed, list):
+                return parsed
+        return [item.strip() for item in raw.split(",") if item.strip()]
+    return _parse_value(raw)
+
+
 def cmd_set(args: argparse.Namespace) -> int:
     cid, cfile, data = _require_active()
     new_val = _parse_value(args.value)
@@ -335,11 +352,33 @@ def cmd_readiness(_: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_intake(_: argparse.Namespace) -> int:
-    _, _, data = _require_active()
+def cmd_intake(args: argparse.Namespace) -> int:
+    cid, cfile, data = _require_active()
     _, missing = _readiness(data)
     if not missing:
         print("All required fields are complete.")
+        return 0
+    if args.interactive:
+        max_questions = args.max_questions if args.max_questions and args.max_questions > 0 else len(missing)
+        asked = 0
+        for p in missing:
+            if asked >= max_questions:
+                break
+            question = INTAKE_QUESTIONS.get(p, f"Provide value for {p}")
+            answer = input(f"{question}\n> ").strip()
+            if not answer:
+                continue
+            old_val = _get_path(data, p) if p in REQUIRED_PATHS else None
+            new_val = _coerce_value_for_path(data, p, answer)
+            _set_path(data, p, new_val)
+            _write_change(cid, p, old_val, new_val)
+            asked += 1
+        score, new_missing = _update_qa(data)
+        _save(cfile, data)
+        print(f"Saved {asked} answers.")
+        print(f"Readiness: {score}")
+        if new_missing:
+            print(f"Still missing: {len(new_missing)} required fields")
         return 0
     print("Missing required fields and intake prompts:\n")
     for p in missing:
@@ -456,6 +495,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.set_defaults(func=cmd_readiness)
 
     p = sub.add_parser("intake")
+    p.add_argument("--interactive", action="store_true")
+    p.add_argument("--max-questions", type=int, default=0)
     p.set_defaults(func=cmd_intake)
 
     p = sub.add_parser("generate")

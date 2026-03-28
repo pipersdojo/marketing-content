@@ -17,7 +17,7 @@ Run commands with no installation:
 ```bash
 PYTHONPATH=src python -m marketing_agent.cli create 2026-04-back-to-basics
 PYTHONPATH=src python -m marketing_agent.cli open 2026-04-back-to-basics
-PYTHONPATH=src python -m marketing_agent.cli intake
+PYTHONPATH=src python -m marketing_agent.cli intake --interactive
 PYTHONPATH=src python -m marketing_agent.cli set offer.name "Back to Basics Workshop"
 PYTHONPATH=src python -m marketing_agent.cli readiness-score
 PYTHONPATH=src python -m marketing_agent.cli generate --channels email,landing_page,social
@@ -44,3 +44,9 @@ campaigns/
 ```
 
 `campaign.yaml` is the source of truth for campaign memory.
+
+## Tests
+
+```bash
+PYTHONPATH=src python -m unittest tests/test_cli.py -v
+```
