@@ -136,6 +136,22 @@ class CampaignCliTests(unittest.TestCase):
             self.assertTrue(any((base / "qa").glob("qa-*.json")))
             self.assertTrue(any((base / "exports").glob("scheduler-package-*.json")))
 
+    def test_chat_new_campaign_creates_and_opens(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cwd = Path(tmp)
+            result = run_cli(["chat", "hey", "bro,", "i", "need", "to", "make", "a", "new", "marketing", "campaign"], cwd)
+            self.assertEqual(result.returncode, 0)
+            campaigns = list((cwd / "campaigns").glob("*"))
+            self.assertEqual(len(campaigns), 1)
+            context = (cwd / ".campaign-context").read_text().strip()
+            self.assertEqual(context, campaigns[0].name)
+
+    def test_chat_help_message(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cwd = Path(tmp)
+            result = run_cli(["chat", "help"], cwd)
+            self.assertIn("new marketing campaign", result.stdout.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

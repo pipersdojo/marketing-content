@@ -81,6 +81,16 @@ Run generate + qa + export in one command:
 PYTHONPATH=src python -m marketing_agent.cli run --channels email,landing_page --provider template --variants 2 --strict-qa
 ```
 
+## Plain-text chat mode (Sprint D)
+
+If you want natural-language style commands, use:
+
+```bash
+PYTHONPATH=src python -m marketing_agent.cli chat "hey bro, i need to make a new marketing campaign"
+PYTHONPATH=src python -m marketing_agent.cli chat "run campaign"
+PYTHONPATH=src python -m marketing_agent.cli chat
+```
+
 ## Tests
 
 ```bash

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -683,6 +684,97 @@ def cmd_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def _slugify(text: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+    return slug or "campaign"
+
+
+def _today_prefix() -> str:
+    return datetime.now().strftime("%Y-%m")
+
+
+def _extract_campaign_id(text: str) -> str | None:
+    m = re.search(r"(20\d{2}-\d{2}-[a-z0-9-]+)", text.lower())
+    if m:
+        return m.group(1)
+    return None
+
+
+def _chat_handle_message(message: str) -> int:
+    msg = message.strip()
+    low = msg.lower()
+    if not msg:
+        print("Say something like: 'hey bro, i need to make a new marketing campaign'.")
+        return 0
+
+    if any(phrase in low for phrase in ["new marketing campaign", "new campaign", "create campaign"]):
+        title = re.sub(r".*(new marketing campaign|new campaign|create campaign)\s*", "", low).strip()
+        campaign_id = f"{_today_prefix()}-{_slugify(title or 'new-campaign')}"
+        rc = cmd_create(argparse.Namespace(campaign_id=campaign_id, force=False))
+        if rc != 0:
+            return rc
+        rc = cmd_open(argparse.Namespace(campaign_id=campaign_id))
+        if rc != 0:
+            return rc
+        print(f"Got you. New campaign is ready: {campaign_id}")
+        print("Next: run `campaign intake --interactive` and answer the prompts.")
+        return 0
+
+    if "open campaign" in low:
+        cid = _extract_campaign_id(low)
+        if not cid:
+            print("I need a campaign id, e.g. 'open campaign 2026-04-spring-launch'.")
+            return 0
+        return cmd_open(argparse.Namespace(campaign_id=cid))
+
+    if "run campaign" in low or low.startswith("run "):
+        rc = cmd_run(
+            argparse.Namespace(
+                channels="email,landing_page,social",
+                provider="template",
+                model="gpt-4.1-mini",
+                variants=2,
+                rubric="",
+                strict_qa=False,
+                skip_export=False,
+            )
+        )
+        if rc == 0:
+            print("Done. I ran generate + qa + export.")
+        return rc
+
+    if "help" in low or "what can you do" in low:
+        print("Try one of these:")
+        print("- 'hey bro, i need to make a new marketing campaign'")
+        print("- 'open campaign 2026-04-your-campaign'")
+        print("- 'run campaign'")
+        print("- 'exit'")
+        return 0
+
+    print("I didn't catch that. Say 'help' for examples.")
+    return 0
+
+
+def cmd_chat(args: argparse.Namespace) -> int:
+    """Plain-text chat interface for non-technical users."""
+    if args.message:
+        return _chat_handle_message(" ".join(args.message))
+
+    print("Marketing Agent Chat (type 'exit' to quit)")
+    while True:
+        try:
+            user_text = input("you> ").strip()
+        except EOFError:
+            print()
+            return 0
+        if user_text.lower() in {"exit", "quit"}:
+            print("later 👋")
+            return 0
+        rc = _chat_handle_message(user_text)
+        if rc != 0:
+            return rc
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="campaign", description="Campaign memory CLI")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -743,6 +835,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--strict-qa", action="store_true")
     p.add_argument("--skip-export", action="store_true")
     p.set_defaults(func=cmd_run)
+
+    p = sub.add_parser("chat")
+    p.add_argument("message", nargs="*")
+    p.set_defaults(func=cmd_chat)
 
     return parser
 
