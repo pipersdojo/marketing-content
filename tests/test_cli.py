@@ -7,7 +7,11 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-ENV = {**os.environ, "PYTHONPATH": str(REPO_ROOT / "src")}
+ENV = {
+    **os.environ,
+    "PYTHONPATH": str(REPO_ROOT / "src"),
+    "MARKETING_AGENT_PROMPTS_DIR": str(REPO_ROOT / "prompts"),
+}
 
 
 def run_cli(args, cwd, input_text=None, expect_ok=True):
@@ -69,6 +73,43 @@ class CampaignCliTests(unittest.TestCase):
             export_dir = cwd / "campaigns" / "2026-04-qa-export" / "exports"
             self.assertTrue(any(qa_dir.glob("qa-*.json")))
             self.assertTrue(any(export_dir.glob("scheduler-package-*.json")))
+
+    def test_generate_template_provider_outputs_variants(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cwd = Path(tmp)
+            run_cli(["create", "2026-04-generate-template"], cwd)
+            run_cli(["open", "2026-04-generate-template"], cwd)
+
+            run_cli(["set", "offer.name", "Offer"], cwd)
+            run_cli(["set", "offer.summary", "Summary"], cwd)
+            run_cli(["set", "offer.regular_price", "100"], cwd)
+            run_cli(["set", "offer.promo_price", "50"], cwd)
+            run_cli(["set", "offer.deadline_iso", "2026-12-31T23:59:00Z"], cwd)
+            run_cli(["set", "market_diagnosis_10.keeps_them_awake_at_night", "stalled progress"], cwd)
+            run_cli(["set", "market_diagnosis_10.fears", '["fear1"]'], cwd)
+            run_cli(["set", "market_diagnosis_10.anger_and_targets", '["anger1"]'], cwd)
+            run_cli(["set", "market_diagnosis_10.top_3_daily_frustrations", '["f1","f2","f3"]'], cwd)
+            run_cli(["set", "market_diagnosis_10.key_trends_affecting_them", '["trend1"]'], cwd)
+            run_cli(["set", "market_diagnosis_10.secret_ardent_desires", '["desire1"]'], cwd)
+            run_cli(["set", "market_diagnosis_10.built_in_decision_bias", "analytical"], cwd)
+            run_cli(["set", "market_diagnosis_10.own_language", '["jargon"]'], cwd)
+            run_cli(["set", "market_diagnosis_10.competitors_and_their_pitch", '["comp"]'], cwd)
+            run_cli(["set", "market_diagnosis_10.failed_competing_attempts", '["failed"]'], cwd)
+            run_cli(["set", "buyer_priorities_ranked", '[{"priority":1,"want":"result","evidence":"x"}]'], cwd)
+            run_cli(["set", "offer_decomposition.features", '["feature"]'], cwd)
+            run_cli(["set", "offer_decomposition.benefits", '["benefit"]'], cwd)
+            run_cli(["set", "offer_decomposition.hidden_benefit.statement", "hidden value"], cwd)
+            run_cli(["set", "objection_bank.reasons_not_to_respond", '["obj"]'], cwd)
+            run_cli(["set", "objection_bank.rebuttals", '[{"objection":"obj","response":"resp"}]'], cwd)
+            run_cli(["set", "messaging_strategy.cta.primary", "Enroll now"], cwd)
+            run_cli(["set", "messaging_strategy.cta.urgency_devices", '["deadline"]'], cwd)
+
+            run_cli(["generate", "--channels", "email", "--provider", "template", "--variants", "2"], cwd)
+
+            artifact_path = cwd / "campaigns" / "2026-04-generate-template" / "artifacts" / "email.generated.yaml"
+            artifact = json.loads(artifact_path.read_text())
+            self.assertEqual(len(artifact["variants"]), 2)
+            self.assertEqual(artifact["variants"][0]["provider"], "template")
 
 
 if __name__ == "__main__":

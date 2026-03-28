@@ -20,7 +20,7 @@ PYTHONPATH=src python -m marketing_agent.cli open 2026-04-back-to-basics
 PYTHONPATH=src python -m marketing_agent.cli intake --interactive
 PYTHONPATH=src python -m marketing_agent.cli set offer.name "Back to Basics Workshop"
 PYTHONPATH=src python -m marketing_agent.cli readiness-score
-PYTHONPATH=src python -m marketing_agent.cli generate --channels email,landing_page,social
+PYTHONPATH=src python -m marketing_agent.cli generate --channels email,landing_page,social --provider template --variants 3
 PYTHONPATH=src python -m marketing_agent.cli qa
 PYTHONPATH=src python -m marketing_agent.cli export
 ```
@@ -44,6 +44,21 @@ campaigns/
 ```
 
 `campaign.yaml` is the source of truth for campaign memory.
+
+## Prompt-driven generation (Sprint A)
+
+- Prompt templates are stored under `prompts/` and `prompts/channels/`.
+- `campaign generate` supports:
+  - `--provider template` (local deterministic drafts, no API key)
+  - `--provider openai` (calls OpenAI Chat Completions API)
+  - `--model <model-name>` and `--variants <n>`
+
+For OpenAI provider:
+
+```bash
+export OPENAI_API_KEY=your_key_here
+PYTHONPATH=src python -m marketing_agent.cli generate --channels email --provider openai --model gpt-4.1-mini --variants 2
+```
 
 ## Tests
 

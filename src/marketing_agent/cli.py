@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
+import urllib.error
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -10,6 +13,7 @@ from typing import Any
 ROOT = Path.cwd()
 CAMPAIGNS_DIR = ROOT / "campaigns"
 CONTEXT_FILE = ROOT / ".campaign-context"
+PROMPTS_DIR = ROOT / "prompts"
 
 REQUIRED_PATHS: dict[str, int] = {
     "offer.name": 3,
@@ -322,6 +326,80 @@ def _coerce_value_for_path(data: dict[str, Any], path: str, raw: str) -> Any:
     return _parse_value(raw)
 
 
+def _load_prompt(path: Path) -> str:
+    if not path.exists():
+        raise ValueError(f"Prompt file missing: {path}")
+    return path.read_text()
+
+
+def _resolve_prompts_dir() -> Path:
+    override = os.environ.get("MARKETING_AGENT_PROMPTS_DIR", "").strip()
+    if override:
+        return Path(override)
+    return PROMPTS_DIR
+
+
+def _render_prompt(template: str, data: dict[str, Any], channel: str, variant: int) -> str:
+    return template.format(
+        campaign_id=data.get("campaign_id", ""),
+        offer_name=data.get("offer", {}).get("name", ""),
+        offer_summary=data.get("offer", {}).get("summary", ""),
+        cta=data.get("messaging_strategy", {}).get("cta", {}).get("primary", ""),
+        channel=channel,
+        variant=variant,
+        campaign_json=json.dumps(data, indent=2),
+    )
+
+
+def _openai_generate(system_prompt: str, user_prompt: str, model: str) -> str:
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY is required for --provider openai")
+
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        "temperature": 0.7,
+    }
+    req = urllib.request.Request(
+        url="https://api.openai.com/v1/chat/completions",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=90) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode("utf-8", errors="ignore")
+        raise ValueError(f"OpenAI request failed ({e.code}): {detail}")
+    except urllib.error.URLError as e:
+        raise ValueError(f"OpenAI request failed: {e.reason}")
+
+    try:
+        return body["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        raise ValueError("Unexpected OpenAI response format")
+
+
+def _parse_generated_text(raw_text: str, fallback_cta: str) -> dict[str, str]:
+    try:
+        parsed = json.loads(raw_text)
+        return {
+            "headline": str(parsed.get("headline", "")).strip(),
+            "body": str(parsed.get("body", "")).strip(),
+            "cta": str(parsed.get("cta", fallback_cta)).strip(),
+        }
+    except json.JSONDecodeError:
+        return {"headline": "", "body": raw_text.strip(), "cta": fallback_cta}
+
+
 def cmd_set(args: argparse.Namespace) -> int:
     cid, cfile, data = _require_active()
     new_val = _parse_value(args.value)
@@ -394,7 +472,37 @@ def cmd_generate(args: argparse.Namespace) -> int:
     channels = [c.strip() for c in args.channels.split(",") if c.strip()]
     adir = _campaign_dir(cid) / "artifacts"
     adir.mkdir(parents=True, exist_ok=True)
+    prompts_dir = _resolve_prompts_dir()
+    system_template = _load_prompt(prompts_dir / "system.md")
+    fallback_cta = data.get("messaging_strategy", {}).get("cta", {}).get("primary", "")
+
     for c in channels:
+        channel_template = _load_prompt(prompts_dir / "channels" / f"{c}.md")
+        variants: list[dict[str, Any]] = []
+        for i in range(1, args.variants + 1):
+            system_prompt = _render_prompt(system_template, data, c, i)
+            user_prompt = _render_prompt(channel_template, data, c, i)
+            if args.provider == "openai":
+                generated_text = _openai_generate(system_prompt, user_prompt, args.model)
+            else:
+                generated_text = json.dumps(
+                    {
+                        "headline": f"{c.title()} Variant {i}",
+                        "body": f"Template draft for {cid} ({c}) variant {i}.",
+                        "cta": fallback_cta,
+                    }
+                )
+            draft = _parse_generated_text(generated_text, fallback_cta)
+            variants.append(
+                {
+                    "variant": i,
+                    "provider": args.provider,
+                    "model": args.model if args.provider == "openai" else "template",
+                    "draft": draft,
+                    "raw": generated_text,
+                }
+            )
+
         artifact = {
             "campaign_id": cid,
             "channel": c,
@@ -402,12 +510,12 @@ def cmd_generate(args: argparse.Namespace) -> int:
             "inputs": {
                 "core_promise": data.get("messaging_strategy", {}).get("core_promise", ""),
                 "big_idea": data.get("messaging_strategy", {}).get("big_idea", ""),
-                "cta": data.get("messaging_strategy", {}).get("cta", {}).get("primary", ""),
+                "cta": fallback_cta,
             },
-            "draft": {"headline": "", "body": "", "cta": data.get("messaging_strategy", {}).get("cta", {}).get("primary", "")},
+            "variants": variants,
         }
         _save(adir / f"{c}.generated.yaml", artifact)
-        print(f"Generated placeholder artifact: {adir / f'{c}.generated.yaml'}")
+        print(f"Generated artifact: {adir / f'{c}.generated.yaml'} ({len(variants)} variants via {args.provider})")
     return 0
 
 
@@ -501,6 +609,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("generate")
     p.add_argument("--channels", default="email,landing_page,social")
+    p.add_argument("--provider", default="template", choices=["template", "openai"])
+    p.add_argument("--model", default="gpt-4.1-mini")
+    p.add_argument("--variants", type=int, default=3)
     p.set_defaults(func=cmd_generate)
 
     p = sub.add_parser("qa")
