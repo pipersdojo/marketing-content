@@ -14,6 +14,7 @@ ROOT = Path.cwd()
 CAMPAIGNS_DIR = ROOT / "campaigns"
 CONTEXT_FILE = ROOT / ".campaign-context"
 PROMPTS_DIR = ROOT / "prompts"
+QA_RUBRIC_FILE = ROOT / "qa" / "rubric.json"
 
 REQUIRED_PATHS: dict[str, int] = {
     "offer.name": 3,
@@ -339,6 +340,27 @@ def _resolve_prompts_dir() -> Path:
     return PROMPTS_DIR
 
 
+def _resolve_rubric_file(path_arg: str | None) -> Path:
+    if path_arg:
+        return Path(path_arg)
+    override = os.environ.get("MARKETING_AGENT_RUBRIC_FILE", "").strip()
+    if override:
+        return Path(override)
+    return QA_RUBRIC_FILE
+
+
+def _load_rubric(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        raise ValueError(f"Rubric file missing: {path}")
+    try:
+        rubric = json.loads(path.read_text())
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid rubric JSON: {e}")
+    if "weights" not in rubric or not isinstance(rubric["weights"], dict):
+        raise ValueError("Rubric must contain a 'weights' object")
+    return rubric
+
+
 def _render_prompt(template: str, data: dict[str, Any], channel: str, variant: int) -> str:
     return template.format(
         campaign_id=data.get("campaign_id", ""),
@@ -522,21 +544,71 @@ def cmd_generate(args: argparse.Namespace) -> int:
 def cmd_qa(_: argparse.Namespace) -> int:
     cid, cfile, data = _require_active()
     score, missing = _readiness(data)
+    rubric = _load_rubric(_resolve_rubric_file(_.rubric))
+    weights: dict[str, int] = rubric.get("weights", {})
+    strict_fail_conditions: list[str] = rubric.get("strict_fail_conditions", [])
+
+    artifacts = []
+    for f in sorted((_campaign_dir(cid) / "artifacts").glob("*.generated.yaml")):
+        artifacts.append(_load(f))
+
+    has_headline = any(
+        variant.get("draft", {}).get("headline", "").strip()
+        for artifact in artifacts
+        for variant in artifact.get("variants", [])
+    ) or bool(data.get("messaging_strategy", {}).get("headline_candidates"))
+    has_cta = bool(data.get("messaging_strategy", {}).get("cta", {}).get("primary", "").strip())
+    has_guarantee = bool(str(data.get("offer", {}).get("guarantee", {}).get("terms", "")).strip())
+    has_objections = bool(data.get("objection_bank", {}).get("rebuttals", []))
+    has_urgency = bool(data.get("messaging_strategy", {}).get("cta", {}).get("urgency_devices", []))
+    has_proof = bool(data.get("proof_library", {}).get("testimonials", []) or data.get("proof_library", {}).get("authority_signals", []))
+
+    dimension_scores = {
+        "readiness": score,
+        "headline_presence": 100 if has_headline else 0,
+        "cta_presence": 100 if has_cta else 0,
+        "guarantee": 100 if has_guarantee else 0,
+        "objection_handling": 100 if has_objections else 0,
+        "urgency": 100 if has_urgency else 0,
+        "proof_assets": 100 if has_proof else 0,
+    }
+
     fails = []
-    if not data.get("messaging_strategy", {}).get("headline_candidates"):
-        fails.append("No headline candidates provided")
-    if not data.get("messaging_strategy", {}).get("cta", {}).get("primary"):
-        fails.append("Missing primary CTA")
-    if _is_missing(data.get("offer", {}).get("guarantee", {}).get("terms")):
-        fails.append("Guarantee terms missing")
-    quality = max(0, min(100, score - len(fails) * 10))
+    if not has_headline:
+        fails.append("headline_missing")
+    if not has_cta:
+        fails.append("missing_primary_cta")
+    if not has_guarantee:
+        fails.append("guarantee_terms_missing")
+    if not has_objections:
+        fails.append("objection_rebuttals_missing")
+
+    weighted_total = sum(weights.values()) if weights else 100
+    weighted_score = 0.0
+    for key, w in weights.items():
+        weighted_score += (dimension_scores.get(key, 0) / 100.0) * w
+    quality = int(round((weighted_score / weighted_total) * 100)) if weighted_total else 0
+
+    rewrite_suggestions = []
+    if "headline_missing" in fails:
+        rewrite_suggestions.append("Add at least 5 headline candidates that match the top buyer priority.")
+    if "missing_primary_cta" in fails:
+        rewrite_suggestions.append("Define messaging_strategy.cta.primary with explicit action language.")
+    if "guarantee_terms_missing" in fails:
+        rewrite_suggestions.append("Add clear guarantee terms under offer.guarantee.terms to reduce buyer risk.")
+    if "objection_rebuttals_missing" in fails:
+        rewrite_suggestions.append("Add objection_bank.rebuttals entries mapping objection -> response.")
+
     report = {
         "campaign_id": cid,
         "ran_at": now_iso(),
+        "rubric_file": str(_resolve_rubric_file(_.rubric)),
         "readiness_score": score,
         "copy_quality_score": quality,
+        "dimension_scores": dimension_scores,
         "missing_required": missing,
         "fail_conditions": fails,
+        "rewrite_suggestions": rewrite_suggestions,
     }
     qdir = _campaign_dir(cid) / "qa"
     qdir.mkdir(parents=True, exist_ok=True)
@@ -550,6 +622,8 @@ def cmd_qa(_: argparse.Namespace) -> int:
     _save(cfile, data)
     print(f"QA report written: {rpt}")
     print(json.dumps(report, indent=2))
+    if _.strict and any(cond in fails for cond in strict_fail_conditions):
+        return 2
     return 0
 
 
@@ -615,6 +689,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.set_defaults(func=cmd_generate)
 
     p = sub.add_parser("qa")
+    p.add_argument("--rubric", default="")
+    p.add_argument("--strict", action="store_true")
     p.set_defaults(func=cmd_qa)
 
     p = sub.add_parser("export")

@@ -1,0 +1,15 @@
+{
+  "weights": {
+    "readiness": 35,
+    "headline_presence": 15,
+    "cta_presence": 15,
+    "guarantee": 10,
+    "objection_handling": 10,
+    "urgency": 10,
+    "proof_assets": 5
+  },
+  "strict_fail_conditions": [
+    "missing_primary_cta",
+    "guarantee_terms_missing"
+  ]
+}

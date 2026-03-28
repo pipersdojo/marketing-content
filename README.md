@@ -60,6 +60,18 @@ export OPENAI_API_KEY=your_key_here
 PYTHONPATH=src python -m marketing_agent.cli generate --channels email --provider openai --model gpt-4.1-mini --variants 2
 ```
 
+## Rubric QA (Sprint B)
+
+- QA scoring is rubric-driven via `qa/rubric.json`.
+- Override rubric location with:
+  - `--rubric <path>`
+  - or `MARKETING_AGENT_RUBRIC_FILE=/path/to/rubric.json`
+- Use strict mode to fail command execution when critical fail conditions are present:
+
+```bash
+PYTHONPATH=src python -m marketing_agent.cli qa --strict
+```
+
 ## Tests
 
 ```bash

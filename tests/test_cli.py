@@ -11,6 +11,7 @@ ENV = {
     **os.environ,
     "PYTHONPATH": str(REPO_ROOT / "src"),
     "MARKETING_AGENT_PROMPTS_DIR": str(REPO_ROOT / "prompts"),
+    "MARKETING_AGENT_RUBRIC_FILE": str(REPO_ROOT / "qa" / "rubric.json"),
 }
 
 
@@ -73,6 +74,15 @@ class CampaignCliTests(unittest.TestCase):
             export_dir = cwd / "campaigns" / "2026-04-qa-export" / "exports"
             self.assertTrue(any(qa_dir.glob("qa-*.json")))
             self.assertTrue(any(export_dir.glob("scheduler-package-*.json")))
+
+    def test_qa_strict_fails_on_missing_criticals(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cwd = Path(tmp)
+            run_cli(["create", "2026-04-qa-strict"], cwd)
+            run_cli(["open", "2026-04-qa-strict"], cwd)
+            result = run_cli(["qa", "--strict"], cwd, expect_ok=False)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("missing_primary_cta", result.stdout)
 
     def test_generate_template_provider_outputs_variants(self):
         with tempfile.TemporaryDirectory() as tmp:
