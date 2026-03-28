@@ -645,6 +645,44 @@ def cmd_export(_: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_run(args: argparse.Namespace) -> int:
+    """Run end-to-end flow: generate -> qa -> export."""
+    _, _, data = _require_active()
+    score, missing = _readiness(data)
+    if score < 85:
+        print(
+            f"Error: readiness score is {score}; minimum 85 required before run. Missing: {', '.join(missing)}",
+            file=sys.stderr,
+        )
+        return 2
+
+    gen_args = argparse.Namespace(
+        channels=args.channels,
+        provider=args.provider,
+        model=args.model,
+        variants=args.variants,
+    )
+    gen_rc = cmd_generate(gen_args)
+    if gen_rc != 0:
+        return gen_rc
+
+    qa_args = argparse.Namespace(rubric=args.rubric, strict=args.strict_qa)
+    qa_rc = cmd_qa(qa_args)
+    if qa_rc != 0:
+        return qa_rc
+
+    if args.skip_export:
+        print("Run completed (export skipped).")
+        return 0
+
+    exp_rc = cmd_export(argparse.Namespace())
+    if exp_rc != 0:
+        return exp_rc
+
+    print("Run completed: generate + qa + export")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="campaign", description="Campaign memory CLI")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -695,6 +733,16 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("export")
     p.set_defaults(func=cmd_export)
+
+    p = sub.add_parser("run")
+    p.add_argument("--channels", default="email,landing_page,social")
+    p.add_argument("--provider", default="template", choices=["template", "openai"])
+    p.add_argument("--model", default="gpt-4.1-mini")
+    p.add_argument("--variants", type=int, default=3)
+    p.add_argument("--rubric", default="")
+    p.add_argument("--strict-qa", action="store_true")
+    p.add_argument("--skip-export", action="store_true")
+    p.set_defaults(func=cmd_run)
 
     return parser
 

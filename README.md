@@ -23,6 +23,7 @@ PYTHONPATH=src python -m marketing_agent.cli readiness-score
 PYTHONPATH=src python -m marketing_agent.cli generate --channels email,landing_page,social --provider template --variants 3
 PYTHONPATH=src python -m marketing_agent.cli qa
 PYTHONPATH=src python -m marketing_agent.cli export
+PYTHONPATH=src python -m marketing_agent.cli run --channels email --provider template --variants 1
 ```
 
 Or via helper script:
@@ -70,6 +71,14 @@ PYTHONPATH=src python -m marketing_agent.cli generate --channels email --provide
 
 ```bash
 PYTHONPATH=src python -m marketing_agent.cli qa --strict
+```
+
+## One-command flow (Sprint C)
+
+Run generate + qa + export in one command:
+
+```bash
+PYTHONPATH=src python -m marketing_agent.cli run --channels email,landing_page --provider template --variants 2 --strict-qa
 ```
 
 ## Tests
